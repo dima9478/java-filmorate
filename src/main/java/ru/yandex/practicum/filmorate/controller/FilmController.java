@@ -17,7 +17,7 @@ import java.util.Map;
 @RequestMapping(value = "/films", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 public class FilmController {
-    Map<Integer, Film> films = new HashMap<>();
+    private final Map<Integer, Film> films = new HashMap<>();
     private int currentId;
 
     @GetMapping

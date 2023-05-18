@@ -17,7 +17,7 @@ import java.util.Map;
 @RequestMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 public class UserController {
-    private Map<Integer, User> users = new HashMap<>();
+    private final Map<Integer, User> users = new HashMap<>();
     private int currentId;
 
     @GetMapping
