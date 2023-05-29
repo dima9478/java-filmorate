@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -23,14 +24,24 @@ public class UserService {
         return userStorage.getAll();
     }
 
+    public User getUserById(int id) {
+        User user = userStorage.getById(id);
+        if (user == null) {
+            throw new NotFoundException(String.format("User with id %d not found", id));
+        }
+        return user;
+    }
+
     public User add(@Valid User user) {
         validate(user);
 
-        if (user.getName() == null) {
+        if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
+        User createdUser = userStorage.create(user);
+        log.debug("User {} was created", createdUser);
 
-        return userStorage.create(user);
+        return createdUser;
     }
 
     public User update(@Valid User user) {
@@ -40,7 +51,59 @@ public class UserService {
             user.setName(user.getLogin());
         }
 
-        return userStorage.update(user);
+        User updatedUser = userStorage.update(user);
+        if (updatedUser == null) {
+            int userId = user.getId();
+            log.debug("User with id {} wasn't updated as it can't be found in storage", userId);
+            throw new NotFoundException("No user with such id " + userId);
+        }
+        log.debug("User {} was updated", updatedUser);
+
+        return updatedUser;
+    }
+
+    public void addFriendToUser(int userId, int friendId) {
+        User user = getUserById(userId);
+        User friend = getUserById(friendId);
+
+        if (!user.addFriend(friend.getId())) {
+            log.debug("User {} has already friend {}", user.getId(), friend.getId());
+            return;
+        }
+        friend.addFriend(user.getId());
+        userStorage.update(user);
+        userStorage.update(friend);
+
+        log.debug("Friend {} was added to user {}", friend.getId(), user.getId());
+    }
+
+    public void deleteFriendFromUser(int userId, int friendId) {
+        User user = getUserById(userId);
+        User friend = getUserById(friendId);
+
+        if (!user.removeFriend(friend.getId())) {
+            log.debug("User {} doesn't have friend {}", user.getId(), friend.getId());
+            return;
+        }
+        friend.removeFriend(user.getId());
+
+        userStorage.update(user);
+        userStorage.update(friend);
+
+        log.debug("Friend {} was removed from user {}", friend.getId(), user.getId());
+    }
+
+    public Collection<User> getUserFriends(int userId) {
+        User user = getUserById(userId);
+
+        return userStorage.getFriends(user.getId());
+    }
+
+    public Collection<User> getCommonFriends(int userId, int otherId) {
+        User user = getUserById(userId);
+        User other = getUserById(otherId);
+
+        return userStorage.getCommonFriends(user.getId(), other.getId());
     }
 
     private void validate(User user) {

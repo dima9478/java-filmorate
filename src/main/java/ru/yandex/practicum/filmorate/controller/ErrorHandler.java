@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.ErrorResponse;
 
 import javax.validation.ConstraintViolationException;
+import java.security.InvalidParameterException;
 
 @RestControllerAdvice
 public class ErrorHandler {
@@ -22,7 +23,8 @@ public class ErrorHandler {
     @ExceptionHandler({
             ConstraintViolationException.class,
             ValidationException.class,
-            MethodArgumentNotValidException.class})
+            MethodArgumentNotValidException.class,
+            InvalidParameterException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationError(Exception e) {
         return new ErrorResponse(e.getMessage());

@@ -2,12 +2,12 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -18,6 +18,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Collection<Film> getAll() {
         return films.values();
+    }
+
+    @Override
+    public Film getById(int id) {
+        return films.get(id);
     }
 
     @Override
@@ -34,11 +39,18 @@ public class InMemoryFilmStorage implements FilmStorage {
         int filmId = film.getId();
 
         if (!films.containsKey(filmId)) {
-            log.debug("Film with id {} wasn't updated as it can't be found in storage", filmId);
-            throw new NotFoundException("No film with such id " + filmId);
+            return null;
         }
         films.put(filmId, film);
 
         return film;
+    }
+
+    @Override
+    public Collection<Film> getPopularFilms(int count) {
+        return films.values().stream()
+                .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
+                .limit(count)
+                .collect(Collectors.toList());
     }
 }

@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
 
-@Slf4j
 @RequiredArgsConstructor
 @RequestMapping(value = "/films", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
@@ -21,19 +20,41 @@ public class FilmController {
         return filmService.getAll();
     }
 
+    @GetMapping("/{id}")
+    public Film getFilm(@PathVariable("id") int filmId) {
+        return filmService.getFilmById(filmId);
+    }
+
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Film addFilm(@RequestBody Film film) {
         Film createdFilm = filmService.add(film);
 
-        log.debug("Film {} was created", createdFilm);
+
         return createdFilm;
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Film putFilm(@RequestBody Film film) {
-        Film updatedFilm = filmService.update(film);
+        return filmService.update(film);
+    }
 
-        log.debug("Film {} was updated: {}", film.getId(), updatedFilm);
-        return updatedFilm;
+    @PutMapping("/{id}/like/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void addLike(@PathVariable("id") int filmId,
+                        @PathVariable("userId") int userId) {
+        filmService.addLike(filmId, userId);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteLike(@PathVariable("id") int filmId,
+                           @PathVariable("userId") int userId) {
+        filmService.removeLike(filmId, userId);
+    }
+
+    @GetMapping("/popular")
+    public Collection<Film> getPopularFilms(
+            @RequestParam(name = "count", defaultValue = "10") int count) {
+        return filmService.getPopularFilms(count);
     }
 }
