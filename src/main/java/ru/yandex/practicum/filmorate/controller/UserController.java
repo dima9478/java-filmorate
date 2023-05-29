@@ -1,69 +1,41 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.validator.UserValidator;
+import ru.yandex.practicum.filmorate.service.UserService;
 
-import javax.validation.Valid;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
+@RequiredArgsConstructor
 @RequestMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 public class UserController {
-    private final Map<Integer, User> users = new HashMap<>();
-    private int currentId;
+    private final UserService userService;
 
     @GetMapping
     public Collection<User> getUsers() {
-        return users.values();
+        return userService.getAll();
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public User addUser(@Valid @RequestBody User user) {
-        validate(user);
+    public User addUser(@RequestBody User user) {
+        User createdUser = userService.add(user);
 
-        int userId = ++currentId;
-        user.setId(userId);
-        if (user.getName() == null) {
-            user.setName(user.getLogin());
-        }
-        users.put(userId, user);
+        log.debug("User {} was created", createdUser);
 
-        log.debug("User {} was created {}", userId, user);
-
-        return user;
+        return createdUser;
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public User putUser(@Valid @RequestBody User user) {
-        validate(user);
-        int userId = user.getId();
+    public User putUser(@RequestBody User user) {
+        User updatedUser = userService.update(user);
 
-        if (!users.containsKey(userId)) {
-            log.debug("User with id {} wasn't updated as it can't be found in storage", userId);
-            throw new NotFoundException("No user with such id " + userId);
-        }
-        if (user.getName() == null) {
-            user.setName(user.getLogin());
-        }
-        users.put(user.getId(), user);
+        log.debug("User {} was updated", updatedUser);
 
-        log.debug("User {} was updated: {}", user.getId(), user);
-
-        return user;
-    }
-
-    private void validate(User user) {
-        if (!UserValidator.isValid(user)) {
-            log.debug("User data  is invalid: {}", user);
-            throw new ValidationException("Invalid user data");
-        }
+        return updatedUser;
     }
 }

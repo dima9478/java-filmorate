@@ -1,64 +1,39 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.validator.FilmValidator;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
-import javax.validation.Valid;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
+@RequiredArgsConstructor
 @RequestMapping(value = "/films", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 public class FilmController {
-    private final Map<Integer, Film> films = new HashMap<>();
-    private int currentId;
+    private final FilmService filmService;
 
     @GetMapping
     public Collection<Film> getFilms() {
-        return films.values();
+        return filmService.getAll();
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Film addFilm(@Valid @RequestBody Film film) {
-        validate(film);
+    public Film addFilm(@RequestBody Film film) {
+        Film createdFilm = filmService.add(film);
 
-        int filmId = ++currentId;
-        film.setId(filmId);
-        films.put(filmId, film);
-
-        log.debug("Film {} was created {}", filmId, film);
-
-        return film;
+        log.debug("Film {} was created", createdFilm);
+        return createdFilm;
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Film putFilm(@Valid @RequestBody Film film) {
-        validate(film);
-        int filmId = film.getId();
+    public Film putFilm(@RequestBody Film film) {
+        Film updatedFilm = filmService.update(film);
 
-        if (!films.containsKey(filmId)) {
-            log.debug("Film with id {} wasn't updated as it can't be found in storage", filmId);
-            throw new NotFoundException("No film with such id " + filmId);
-        }
-
-        films.put(film.getId(), film);
-
-        log.debug("Film {} was updated: {}", film.getId(), film);
-        return film;
+        log.debug("Film {} was updated: {}", film.getId(), updatedFilm);
+        return updatedFilm;
     }
-
-    private void validate(Film film) {
-        if (!FilmValidator.isValid(film)) {
-            log.debug("Film is invalid: {}", film);
-            throw new ValidationException("Invalid film data");
-        }
-    }
-
 }
