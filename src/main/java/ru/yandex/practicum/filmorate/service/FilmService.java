@@ -67,8 +67,6 @@ public class FilmService {
             return;
         }
 
-        filmStorage.update(film);
-
         log.debug("Like from user {} added to the film {}", user.getId(), film.getId());
     }
 
@@ -80,8 +78,6 @@ public class FilmService {
             log.debug("Film {} doesn't have like from user {}", film.getId(), user.getId());
             return;
         }
-
-        filmStorage.update(film);
 
         log.debug("Like from user {} deleted for the film {}", user.getId(), film.getId());
     }

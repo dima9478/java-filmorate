@@ -71,8 +71,6 @@ public class UserService {
             return;
         }
         friend.addFriend(user.getId());
-        userStorage.update(user);
-        userStorage.update(friend);
 
         log.debug("Friend {} was added to user {}", friend.getId(), user.getId());
     }
@@ -86,9 +84,6 @@ public class UserService {
             return;
         }
         friend.removeFriend(user.getId());
-
-        userStorage.update(user);
-        userStorage.update(friend);
 
         log.debug("Friend {} was removed from user {}", friend.getId(), user.getId());
     }

@@ -48,7 +48,7 @@ public class InMemoryUserStorage implements UserStorage {
     public Collection<User> getFriends(int userId) {
         User user = users.get(userId);
         if (user == null) {
-            return null;
+            return new ArrayList<>();
         }
 
         return user.getFriends().stream()
@@ -61,7 +61,7 @@ public class InMemoryUserStorage implements UserStorage {
         User user = users.get(userId);
         User other = users.get(otherId);
         if (user == null || other == null) {
-            return null;
+            return new ArrayList<>();
         }
 
         Set<Integer> commonFriends = new HashSet<>(user.getFriends());

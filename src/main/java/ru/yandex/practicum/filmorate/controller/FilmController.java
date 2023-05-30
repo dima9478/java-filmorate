@@ -27,10 +27,7 @@ public class FilmController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Film addFilm(@RequestBody Film film) {
-        Film createdFilm = filmService.add(film);
-
-
-        return createdFilm;
+        return filmService.add(film);
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
