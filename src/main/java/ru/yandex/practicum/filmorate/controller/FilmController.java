@@ -1,64 +1,57 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.validator.FilmValidator;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
-import javax.validation.Valid;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
-@Slf4j
+@RequiredArgsConstructor
 @RequestMapping(value = "/films", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 public class FilmController {
-    private final Map<Integer, Film> films = new HashMap<>();
-    private int currentId;
+    private final FilmService filmService;
 
     @GetMapping
     public Collection<Film> getFilms() {
-        return films.values();
+        return filmService.getAll();
+    }
+
+    @GetMapping("/{id}")
+    public Film getFilm(@PathVariable("id") int filmId) {
+        return filmService.getFilmById(filmId);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Film addFilm(@Valid @RequestBody Film film) {
-        validate(film);
-
-        int filmId = ++currentId;
-        film.setId(filmId);
-        films.put(filmId, film);
-
-        log.debug("Film {} was created {}", filmId, film);
-
-        return film;
+    public Film addFilm(@RequestBody Film film) {
+        return filmService.add(film);
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Film putFilm(@Valid @RequestBody Film film) {
-        validate(film);
-        int filmId = film.getId();
-
-        if (!films.containsKey(filmId)) {
-            log.debug("Film with id {} wasn't updated as it can't be found in storage", filmId);
-            throw new NotFoundException("No film with such id " + filmId);
-        }
-
-        films.put(film.getId(), film);
-
-        log.debug("Film {} was updated: {}", film.getId(), film);
-        return film;
+    public Film putFilm(@RequestBody Film film) {
+        return filmService.update(film);
     }
 
-    private void validate(Film film) {
-        if (!FilmValidator.isValid(film)) {
-            log.debug("Film is invalid: {}", film);
-            throw new ValidationException("Invalid film data");
-        }
+    @PutMapping("/{id}/like/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void addLike(@PathVariable("id") int filmId,
+                        @PathVariable("userId") int userId) {
+        filmService.addLike(filmId, userId);
     }
 
+    @DeleteMapping("/{id}/like/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteLike(@PathVariable("id") int filmId,
+                           @PathVariable("userId") int userId) {
+        filmService.removeLike(filmId, userId);
+    }
+
+    @GetMapping("/popular")
+    public Collection<Film> getPopularFilms(
+            @RequestParam(name = "count", defaultValue = "10") int count) {
+        return filmService.getPopularFilms(count);
+    }
 }
