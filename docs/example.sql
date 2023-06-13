@@ -1,14 +1,3 @@
-# java-filmorate
-
-Template repository for Filmorate project.
-
-## Application ERD
-
-![Application ERD](docs/erd.png)
-
-### SQL Examples
-
-```postgresql
 -- film total info
 SELECT f.*, r.name as rating, array_agg(g.name) as genres
 FROM films f
@@ -55,5 +44,3 @@ FROM (SELECT CASE
       WHERE 3 = ANY (ARRAY [user_id, friend_id])
         AND confirmed) AS f2;
 
-
-```
