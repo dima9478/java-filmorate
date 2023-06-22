@@ -71,4 +71,20 @@ public class InMemoryUserStorage implements UserStorage {
                 .map(users::get)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public void addFriend(int userId, int otherId) {
+        User user = users.get(userId);
+        if (user != null) {
+            user.addFriend(otherId);
+        }
+    }
+
+    @Override
+    public void deleteFriend(int userId, int otherId) {
+        User user = users.get(userId);
+        if (user != null) {
+            user.removeFriend(otherId);
+        }
+    }
 }

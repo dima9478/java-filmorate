@@ -18,11 +18,12 @@ public class FilmValidatorTest {
 
     @BeforeEach
     public void setUp() {
-        film = new Film();
-        film.setDuration(100);
-        film.setDescription("desc");
-        film.setName("Name");
-        film.setReleaseDate(LocalDate.of(1900, 10, 12));
+        film = Film.builder()
+                .description("desc")
+                .name("Name")
+                .releaseDate(LocalDate.of(1900, 10, 12))
+                .duration(100)
+                .build();
     }
 
     @Test

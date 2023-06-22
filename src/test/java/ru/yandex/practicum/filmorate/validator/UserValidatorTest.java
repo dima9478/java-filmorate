@@ -18,11 +18,12 @@ public class UserValidatorTest {
 
     @BeforeEach
     public void setUp() {
-        user = new User();
-        user.setEmail("ivan@mail.ru");
-        user.setLogin("login23");
-        user.setName(null);
-        user.setBirthday(LocalDate.of(1996, 10, 12));
+        user = User.builder()
+                .email("ivan@mail.ru")
+                .login("login23")
+                .name(null)
+                .birthday(LocalDate.of(1996, 10, 12))
+                .build();
     }
 
     @Test

@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
@@ -16,12 +16,16 @@ import java.security.InvalidParameterException;
 import java.util.Collection;
 
 @Slf4j
-@RequiredArgsConstructor
 @Validated
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserService userService;
+
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, UserService userService) {
+        this.filmStorage = filmStorage;
+        this.userService = userService;
+    }
 
     public Collection<Film> getAll() {
         return filmStorage.getAll();
@@ -62,11 +66,11 @@ public class FilmService {
         Film film = getFilmById(filmId);
         User user = userService.getUserById(userId);
 
-        if (!film.addLike(user.getId())) {
+        if (film.getLikes().contains(userId)) {
             log.debug("Film {} has already like from user {}", film.getId(), user.getId());
             return;
         }
-
+        filmStorage.addLike(filmId, userId);
         log.debug("Like from user {} added to the film {}", user.getId(), film.getId());
     }
 
@@ -74,11 +78,11 @@ public class FilmService {
         Film film = getFilmById(filmId);
         User user = userService.getUserById(userId);
 
-        if (!film.removeLike(user.getId())) {
+        if (!film.getLikes().contains(userId)) {
             log.debug("Film {} doesn't have like from user {}", film.getId(), user.getId());
             return;
         }
-
+        filmStorage.deleteLike(filmId, userId);
         log.debug("Like from user {} deleted for the film {}", user.getId(), film.getId());
     }
 

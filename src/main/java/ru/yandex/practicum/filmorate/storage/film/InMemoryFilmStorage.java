@@ -51,4 +51,20 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .limit(count)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public void addLike(int filmId, int userId) {
+        Film film = films.get(filmId);
+        if (film != null) {
+            film.addLike(userId);
+        }
+    }
+
+    @Override
+    public void deleteLike(int filmId, int userId) {
+        Film film = films.get(filmId);
+        if (film != null) {
+            film.removeLike(userId);
+        }
+    }
 }
