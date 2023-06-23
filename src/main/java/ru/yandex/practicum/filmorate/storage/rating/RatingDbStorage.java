@@ -13,7 +13,7 @@ import java.util.List;
 @Component
 @AllArgsConstructor
 public class RatingDbStorage implements RatingStorage {
-    JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public List<Rating> getAll() {

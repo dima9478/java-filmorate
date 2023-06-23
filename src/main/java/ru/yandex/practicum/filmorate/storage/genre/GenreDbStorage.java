@@ -13,7 +13,7 @@ import java.util.List;
 @Component
 @AllArgsConstructor
 public class GenreDbStorage implements GenreStorage {
-    JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public List<Genre> getAll() {

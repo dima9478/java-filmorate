@@ -103,10 +103,10 @@ class FilmorateApplicationTests {
 		userStorage.addFriend(storedUser.getId(), friend.getId());
 
 		storedUser = userStorage.getById(storedUser.getId());
-		assertTrue(storedUser.getFriends().contains(friend.getId()));
+		assertTrue(userStorage.getFriends(storedUser.getId()).contains(friend));
 
 		friend = userStorage.getById(friend.getId());
-		assertFalse(friend.getFriends().contains(storedUser.getId()));
+		assertFalse(userStorage.getFriends(friend.getId()).contains(storedUser));
 	}
 
 	@Test
@@ -117,12 +117,12 @@ class FilmorateApplicationTests {
 		userStorage.addFriend(storedUser.getId(), friend.getId());
 
 		storedUser = userStorage.getById(storedUser.getId());
-		assertTrue(storedUser.getFriends().contains(friend.getId()));
+		assertTrue(userStorage.getFriends(storedUser.getId()).contains(friend));
 
 		userStorage.deleteFriend(storedUser.getId(), friend.getId());
 
 		storedUser = userStorage.getById(storedUser.getId());
-		assertTrue(storedUser.getFriends().isEmpty());
+		assertTrue(userStorage.getFriends(storedUser.getId()).isEmpty());
 	}
 
 	@Test

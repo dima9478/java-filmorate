@@ -6,6 +6,7 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -14,7 +15,7 @@ import java.util.TreeSet;
 
 @Data
 @Builder
-public class Film {
+public class Film implements Serializable {
     private int id;
     @NotBlank
     private String name;

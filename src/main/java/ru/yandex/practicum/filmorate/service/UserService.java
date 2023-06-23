@@ -69,7 +69,7 @@ public class UserService {
         User user = getUserById(userId);
         User friend = getUserById(friendId);
 
-        if (user.getFriends().contains(friendId)) {
+        if (userStorage.getFriends(userId).contains(friend)) {
             log.debug("User {} has already friend {}", user.getId(), friend.getId());
             return;
         }
@@ -82,7 +82,7 @@ public class UserService {
         User user = getUserById(userId);
         User friend = getUserById(friendId);
 
-        if (!user.getFriends().contains(friendId)) {
+        if (!userStorage.getFriends(userId).contains(friend)) {
             log.debug("User {} doesn't have friend {}", user.getId(), friend.getId());
             return;
         }
