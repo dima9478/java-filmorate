@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
@@ -15,10 +15,13 @@ import java.util.Collection;
 
 @Slf4j
 @Validated
-@RequiredArgsConstructor
 @Service
 public class UserService {
     private final UserStorage userStorage;
+
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
+        this.userStorage = userStorage;
+    }
 
     public Collection<User> getAll() {
         return userStorage.getAll();
@@ -66,11 +69,11 @@ public class UserService {
         User user = getUserById(userId);
         User friend = getUserById(friendId);
 
-        if (!user.addFriend(friend.getId())) {
+        if (userStorage.getFriends(userId).contains(friend)) {
             log.debug("User {} has already friend {}", user.getId(), friend.getId());
             return;
         }
-        friend.addFriend(user.getId());
+        userStorage.addFriend(userId, friendId);
 
         log.debug("Friend {} was added to user {}", friend.getId(), user.getId());
     }
@@ -79,11 +82,11 @@ public class UserService {
         User user = getUserById(userId);
         User friend = getUserById(friendId);
 
-        if (!user.removeFriend(friend.getId())) {
+        if (!userStorage.getFriends(userId).contains(friend)) {
             log.debug("User {} doesn't have friend {}", user.getId(), friend.getId());
             return;
         }
-        friend.removeFriend(user.getId());
+        userStorage.deleteFriend(userId, friendId);
 
         log.debug("Friend {} was removed from user {}", friend.getId(), user.getId());
     }

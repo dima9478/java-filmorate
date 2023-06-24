@@ -9,4 +9,8 @@ public interface UserStorage extends BaseStorage<User> {
     Collection<User> getFriends(int userId);
 
     Collection<User> getCommonFriends(int userId, int otherId);
+
+    void addFriend(int userId, int otherId);
+
+    void deleteFriend(int userId, int otherId);
 }
